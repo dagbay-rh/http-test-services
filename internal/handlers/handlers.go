@@ -56,9 +56,10 @@ func RegisterRoutes(mux *http.ServeMux, docsDir string) {
 	mux.HandleFunc("GET "+ApiPrefix+"/{version}/openapi.json", withCommon(openapiHandler))
 }
 
-// withCommon wraps a handler with sleep support.
+// withCommon wraps a handler with request logging and sleep support.
 func withCommon(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s", r.Method, r.URL.Path, r.RemoteAddr)
 		if s := r.URL.Query().Get("sleep"); s != "" {
 			if d, err := strconv.ParseFloat(s, 64); err == nil {
 				time.Sleep(time.Duration(d * float64(time.Second)))
