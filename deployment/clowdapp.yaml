@@ -71,7 +71,7 @@ parameters:
 - name: IMAGE_TAG
   required: true
 - name: IMAGE
-  value: quay.io/cloudservices/http-test-services
+  value: quay.io/redhat-services-prod/hcc-accessmanagement-tenant/http-test-services
 - name: ENV_NAME
   required: true
 - description: Minimum number of pods to use when autoscaling is enabled
