@@ -91,24 +91,6 @@ func TestHeaders(t *testing.T) {
 	}
 }
 
-func TestEnv(t *testing.T) {
-	mux := setupMux(t)
-	for _, path := range routesFor("env") {
-		t.Run(path, func(t *testing.T) {
-			req := httptest.NewRequest("GET", path, nil)
-			w := httptest.NewRecorder()
-			mux.ServeHTTP(w, req)
-			if w.Code != http.StatusOK {
-				t.Errorf("expected 200, got %d", w.Code)
-			}
-			var body map[string]string
-			if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
-				t.Fatalf("invalid JSON: %v", err)
-			}
-		})
-	}
-}
-
 func TestRedirect(t *testing.T) {
 	mux := setupMux(t)
 	for _, path := range routesFor("redirect") {

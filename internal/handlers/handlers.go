@@ -43,7 +43,6 @@ func RegisterRoutes(mux *http.ServeMux, docsDir string) {
 	register("GET", "/{$}", redirectHandler)
 	register("GET", "/request", requestHandler)
 	register("GET", "/headers", headersHandler)
-	register("GET", "/env", envHandler)
 	register("GET", "/redirect", redirectToHandler)
 	register("GET", "/ping", pingHandler)
 	register("GET", "/private/ping", pingHandler)
@@ -109,16 +108,6 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 func headersHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, r, http.StatusOK, sortedHeaders(r))
-}
-
-func envHandler(w http.ResponseWriter, r *http.Request) {
-	env := make(map[string]string)
-	for _, e := range os.Environ() {
-		if k, v, ok := strings.Cut(e, "="); ok {
-			env[k] = v
-		}
-	}
-	writeJSON(w, r, http.StatusOK, sortMapByKey(env))
 }
 
 func redirectToHandler(w http.ResponseWriter, r *http.Request) {
@@ -222,15 +211,15 @@ func requestEnv(r *http.Request) orderedMap[string] {
 // sortMapByKey returns a json.Marshaler-friendly ordered map.
 // Since Go maps don't preserve order, we use a slice of key-value pairs
 // that marshals as a JSON object with sorted keys.
-func sortMapByKey[V any](m map[string]V) orderedMap[V] {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
+func sortMapByKey[V any](sourceMap map[string]V) orderedMap[V] {
+	keys := make([]string, 0, len(sourceMap))
+	for key := range sourceMap {
+		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 	entries := make([]mapEntry[V], len(keys))
-	for i, k := range keys {
-		entries[i] = mapEntry[V]{Key: k, Value: m[k]}
+	for i, key := range keys {
+		entries[i] = mapEntry[V]{Key: key, Value: sourceMap[key]}
 	}
 	return orderedMap[V]{Entries: entries}
 }

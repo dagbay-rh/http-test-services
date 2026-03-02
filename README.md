@@ -13,7 +13,6 @@ All HTTP endpoints are available at both `/` and `/api/http-test-services/` (con
 | `/` | GET | 302 redirect to `/api/http-test-services/request` |
 | `/request` | GET | JSON with request env and headers |
 | `/headers` | GET | JSON with sorted HTTP headers |
-| `/env` | GET | JSON with sorted server environment variables |
 | `/redirect?redirect_to=<path>` | GET | 302 redirect to the given path (400 if missing) |
 | `/ping` | GET | `{"status":"available"}` |
 | `/private/ping` | GET | `{"status":"available"}` |

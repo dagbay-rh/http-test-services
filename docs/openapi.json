@@ -158,26 +158,6 @@
         }
       }
     },
-    "/env": {
-      "get": {
-        "description": "Returns all server environment variables sorted by key",
-        "responses": {
-          "200": {
-            "description": "A JSON object of environment variable key-value pairs",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/upload": {
       "post": {
         "description": "Accepts a file upload via multipart form and returns the byte size",
