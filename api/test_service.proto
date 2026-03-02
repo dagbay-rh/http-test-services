@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package test_service;
+
+option go_package = "github.com/RedHatInsights/http-test-services/api/gen";
+
+service PingService {
+  rpc Ping (PingRequest) returns (PingReply);
+}
+
+message PingRequest {
+  string message = 1;
+}
+
+message PingReply {
+  string message = 1;
+}

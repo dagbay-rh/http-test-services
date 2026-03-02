@@ -1,0 +1,350 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "HTTP Test Services",
+    "description": "A Go service for testing HTTP gateway routing",
+    "version": "1"
+  },
+  "servers": [
+    {
+      "url": "https://console.{environment}redhat.com/api/http-test-services/",
+      "variables": {
+        "environment": {
+          "default": "",
+          "enum": [
+            "",
+            "stage."
+          ],
+          "description": "Empty for production, 'stage.' for staging"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "description": "Redirects to the `/request` path",
+        "responses": {
+          "302": {
+            "description": "Redirects to the `/request` path"
+          }
+        }
+      }
+    },
+    "/request": {
+      "get": {
+        "description": "Provides a snapshot of the individual request data",
+        "responses": {
+          "200": {
+            "description": "A JSON object with the request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "env": {
+                      "type": "object"
+                    },
+                    "headers": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/headers": {
+      "get": {
+        "description": "Provides a snapshot of the individual request's header data",
+        "responses": {
+          "200": {
+            "description": "A JSON object with the request header data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/redirect": {
+      "get": {
+        "description": "Provides an interface to redirect to a provided path via `redirect_to`",
+        "parameters": [
+          {
+            "name": "redirect_to",
+            "description": "The path to redirect to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my_path"
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to the `redirect_to` query parameter",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing `redirect_to` query parameter",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ping": {
+      "get": {
+        "description": "Provides a generic 'health check' endpoint",
+        "responses": {
+          "200": {
+            "description": "A JSON object with a basic availability response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "available"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private/ping": {
+      "get": {
+        "description": "Provides a generic 'health check' endpoint that will require vpn access for testing",
+        "responses": {
+          "200": {
+            "description": "A JSON object with a basic availability response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "available"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/env": {
+      "get": {
+        "description": "Returns all server environment variables sorted by key",
+        "responses": {
+          "200": {
+            "description": "A JSON object of environment variable key-value pairs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/upload": {
+      "post": {
+        "description": "Accepts a file upload via multipart form and returns the byte size",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upload result with file size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "posted"
+                    },
+                    "upload_byte_size": {
+                      "type": "integer",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/identity": {
+      "get": {
+        "description": "Decodes and returns the base64-encoded `x-rh-identity` header",
+        "parameters": [
+          {
+            "name": "x-rh-identity",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Base64-encoded identity JSON"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The decoded identity JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid x-rh-identity header",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wss": {
+      "get": {
+        "description": "WebSocket echo endpoint. Upgrades the connection and echoes back any messages received. Returns a JSON message if the request is not a WebSocket upgrade.",
+        "responses": {
+          "101": {
+            "description": "WebSocket upgrade successful"
+          },
+          "200": {
+            "description": "Not a WebSocket request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "not a websocket request"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sse": {
+      "get": {
+        "description": "Server-Sent Events endpoint. Streams ping events with random data every 3 seconds.",
+        "responses": {
+          "200": {
+            "description": "SSE stream of ping events",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{version}/openapi.json": {
+      "get": {
+        "description": "Serves the OpenAPI specification JSON",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^v[0-9]+(\\.[0-9]+)?$"
+            },
+            "example": "v1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The OpenAPI specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
