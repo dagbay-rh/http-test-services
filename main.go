@@ -91,6 +91,11 @@ func resolveHTTPPort() int {
 			}
 		}
 	}
+	if portEnv := os.Getenv(internal.EnvHTTPPort); portEnv != "" {
+		if port, err := strconv.Atoi(portEnv); err == nil && port > 0 {
+			return port
+		}
+	}
 	return 9092
 }
 
